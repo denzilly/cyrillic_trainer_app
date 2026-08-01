@@ -64,7 +64,10 @@ class _PracticeScreenState extends State<PracticeScreen> {
   void _submit() {
     if (_feedback != _Feedback.none) return;
 
-    final correct = TransliterationChecker.isCorrect(_controller.text, _current.accepted);
+    final correct = TransliterationChecker.isCorrect(
+      _controller.text,
+      _current.accepted,
+    );
     setState(() {
       if (correct) {
         _streak.recordCorrect();
@@ -119,55 +122,76 @@ class _PracticeScreenState extends State<PracticeScreen> {
         ],
       ),
       body: SafeArea(
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: AppSpacing.maxContentWidth),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.marginMobile),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    _current.displayText,
-                    style: practiceCharStyle(),
-                    textAlign: TextAlign.center,
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return SingleChildScrollView(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(
+                      maxWidth: AppSpacing.maxContentWidth,
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.marginMobile,
+                        vertical: AppSpacing.gutter,
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            _current.displayText,
+                            key: const Key('practicePromptText'),
+                            style: practiceCharStyle(),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: AppSpacing.gutter * 2),
+                          TextField(
+                            controller: _controller,
+                            focusNode: _focusNode,
+                            enabled: !answered,
+                            autofocus: true,
+                            textAlign: TextAlign.center,
+                            style: textTheme.bodyLarge,
+                            decoration: const InputDecoration(
+                              hintText: 'Type the transliteration',
+                              border: OutlineInputBorder(),
+                            ),
+                            onSubmitted: (_) => _submit(),
+                          ),
+                          const SizedBox(height: AppSpacing.gutter),
+                          if (!answered)
+                            SizedBox(
+                              width: double.infinity,
+                              child: TactileButton(
+                                onPressed: _submit,
+                                child: const Text('Submit'),
+                              ),
+                            )
+                          else ...[
+                            _FeedbackBanner(
+                              correct: _feedback == _Feedback.correct,
+                              answer: _current.primary,
+                              meaning: _current.meaning,
+                            ),
+                            const SizedBox(height: AppSpacing.gutter),
+                            SizedBox(
+                              width: double.infinity,
+                              child: TactileButton(
+                                onPressed: _next,
+                                child: const Text('Next'),
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
                   ),
-                  const SizedBox(height: AppSpacing.gutter * 2),
-                  TextField(
-                    controller: _controller,
-                    focusNode: _focusNode,
-                    enabled: !answered,
-                    autofocus: true,
-                    textAlign: TextAlign.center,
-                    style: textTheme.bodyLarge,
-                    decoration: const InputDecoration(
-                      hintText: 'Type the transliteration',
-                      border: OutlineInputBorder(),
-                    ),
-                    onSubmitted: (_) => _submit(),
-                  ),
-                  const SizedBox(height: AppSpacing.gutter),
-                  if (!answered)
-                    SizedBox(
-                      width: double.infinity,
-                      child: TactileButton(onPressed: _submit, child: const Text('Submit')),
-                    )
-                  else ...[
-                    _FeedbackBanner(
-                      correct: _feedback == _Feedback.correct,
-                      answer: _current.primary,
-                      meaning: _current.meaning,
-                    ),
-                    const SizedBox(height: AppSpacing.gutter),
-                    SizedBox(
-                      width: double.infinity,
-                      child: TactileButton(onPressed: _next, child: const Text('Next')),
-                    ),
-                  ],
-                ],
+                ),
               ),
-            ),
-          ),
+            );
+          },
         ),
       ),
     );
@@ -179,12 +203,20 @@ class _FeedbackBanner extends StatelessWidget {
   final String answer;
   final String? meaning;
 
-  const _FeedbackBanner({required this.correct, required this.answer, this.meaning});
+  const _FeedbackBanner({
+    required this.correct,
+    required this.answer,
+    this.meaning,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final background = correct ? AppColors.successContainer : AppColors.errorContainer;
-    final foreground = correct ? AppColors.onSuccessContainer : AppColors.onErrorContainer;
+    final background = correct
+        ? AppColors.successContainer
+        : AppColors.errorContainer;
+    final foreground = correct
+        ? AppColors.onSuccessContainer
+        : AppColors.onErrorContainer;
 
     return Container(
       width: double.infinity,
@@ -198,7 +230,11 @@ class _FeedbackBanner extends StatelessWidget {
         children: [
           Text(
             correct ? 'Correct!' : 'Incorrect',
-            style: TextStyle(color: foreground, fontWeight: FontWeight.w700, fontSize: 18),
+            style: TextStyle(
+              color: foreground,
+              fontWeight: FontWeight.w700,
+              fontSize: 18,
+            ),
           ),
           const SizedBox(height: AppSpacing.base / 2),
           Text('Answer: $answer', style: TextStyle(color: foreground)),
