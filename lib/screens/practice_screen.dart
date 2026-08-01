@@ -26,11 +26,16 @@ class PracticeScreen extends StatefulWidget {
   /// picker. Omitted for Single Letter Practice, which has no categories.
   final VoidCallback? onOpenWordList;
 
+  /// When provided, shows a button that opens the alphabet reference grid.
+  /// Used by Single Letter Practice only.
+  final VoidCallback? onOpenAlphabetGrid;
+
   const PracticeScreen({
     super.key,
     required this.title,
     required this.prompts,
     this.onOpenWordList,
+    this.onOpenAlphabetGrid,
   });
 
   @override
@@ -116,6 +121,12 @@ class _PracticeScreenState extends State<PracticeScreen> {
               icon: const Icon(Icons.checklist),
               tooltip: 'Word list',
               onPressed: widget.onOpenWordList,
+            ),
+          if (widget.onOpenAlphabetGrid != null)
+            IconButton(
+              icon: const Icon(Icons.grid_view),
+              tooltip: 'Alphabet grid',
+              onPressed: widget.onOpenAlphabetGrid,
             ),
           SoundToggleButton(enabled: _soundEnabled, onChanged: _toggleSound),
           Padding(

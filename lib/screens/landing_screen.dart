@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import '../widgets/scrollable_centered_content.dart';
 import '../widgets/tactile_button.dart';
+import 'help_screen.dart';
 import 'leaderboard_screen.dart';
 import 'letter_practice_screen.dart';
 import 'word_practice_screen.dart';
@@ -65,6 +66,16 @@ class LandingScreen extends StatelessWidget {
                     ),
                   ),
                   child: const Text('High Scores'),
+                ),
+              ),
+              const SizedBox(height: AppSpacing.gutter),
+              SizedBox(
+                width: double.infinity,
+                child: TactileButton(
+                  onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const HelpScreen()),
+                  ),
+                  child: const Text('Help'),
                 ),
               ),
             ],
