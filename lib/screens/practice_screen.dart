@@ -5,7 +5,9 @@ import 'package:flutter/material.dart';
 import '../data/models/practice_prompt.dart';
 import '../logic/streak_controller.dart';
 import '../logic/transliteration_checker.dart';
+import '../services/sound_service.dart';
 import '../theme/app_theme.dart';
+import '../widgets/sound_toggle_button.dart';
 import '../widgets/streak_badge.dart';
 import '../widgets/tactile_button.dart';
 
@@ -18,7 +20,16 @@ class PracticeScreen extends StatefulWidget {
   final String title;
   final List<PracticePrompt> prompts;
 
-  const PracticeScreen({super.key, required this.title, required this.prompts});
+  /// When provided, shows a "Word List" button that opens the category
+  /// picker. Omitted for Single Letter Practice, which has no categories.
+  final VoidCallback? onOpenWordList;
+
+  const PracticeScreen({
+    super.key,
+    required this.title,
+    required this.prompts,
+    this.onOpenWordList,
+  });
 
   @override
   State<PracticeScreen> createState() => _PracticeScreenState();
@@ -33,6 +44,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
   late final List<PracticePrompt> _queue;
   int _index = 0;
   _Feedback _feedback = _Feedback.none;
+  bool _soundEnabled = SoundService.instance.enabled;
 
   @override
   void initState() {
@@ -62,6 +74,16 @@ class _PracticeScreenState extends State<PracticeScreen> {
         _feedback = _Feedback.incorrect;
       }
     });
+    if (correct) {
+      SoundService.instance.playCorrect();
+    } else {
+      SoundService.instance.playIncorrect();
+    }
+  }
+
+  void _toggleSound(bool value) {
+    setState(() => _soundEnabled = value);
+    SoundService.instance.setEnabled(value);
   }
 
   void _next() {
@@ -83,6 +105,13 @@ class _PracticeScreenState extends State<PracticeScreen> {
       appBar: AppBar(
         title: Text(widget.title),
         actions: [
+          if (widget.onOpenWordList != null)
+            IconButton(
+              icon: const Icon(Icons.checklist),
+              tooltip: 'Word list',
+              onPressed: widget.onOpenWordList,
+            ),
+          SoundToggleButton(enabled: _soundEnabled, onChanged: _toggleSound),
           Padding(
             padding: const EdgeInsets.only(right: AppSpacing.gutter),
             child: Center(child: StreakBadge(streak: _streak.current)),
