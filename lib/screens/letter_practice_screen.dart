@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 
-/// Single Letter Practice. Placeholder pending Phase 4.
+import '../data/cyrillic_alphabet.dart';
+import '../data/models/practice_prompt.dart';
+import 'practice_screen.dart';
+
 class LetterPracticeScreen extends StatelessWidget {
   const LetterPracticeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Single Letter Practice')),
-      body: const Center(child: Text('Coming soon')),
+    return PracticeScreen(
+      title: 'Single Letter Practice',
+      prompts: promptsFromLetters(cyrillicAlphabet),
     );
   }
 }
