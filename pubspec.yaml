@@ -36,7 +36,6 @@ dependencies:
   cupertino_icons: ^1.0.8
 
   # App-specific dependencies
-  google_fonts: ^6.2.1
   flutter_riverpod: ^2.6.1
   shared_preferences: ^2.3.3
   audioplayers: ^6.1.0
@@ -68,6 +67,18 @@ flutter:
 
   assets:
     - assets/sfx/
+
+  fonts:
+    - family: Quicksand
+      fonts:
+        - asset: assets/fonts/Quicksand-VariableFont.ttf
+          weight: 700
+    - family: BeVietnamPro
+      fonts:
+        - asset: assets/fonts/BeVietnamPro-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/BeVietnamPro-Bold.ttf
+          weight: 700
 
   # To add assets to your application, add an assets section, like this:
   # assets:

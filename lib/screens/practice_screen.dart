@@ -7,6 +7,7 @@ import '../logic/streak_controller.dart';
 import '../logic/transliteration_checker.dart';
 import '../services/sound_service.dart';
 import '../theme/app_theme.dart';
+import '../widgets/scrollable_centered_content.dart';
 import '../widgets/sound_toggle_button.dart';
 import '../widgets/streak_badge.dart';
 import '../widgets/tactile_button.dart';
@@ -122,76 +123,56 @@ class _PracticeScreenState extends State<PracticeScreen> {
         ],
       ),
       body: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            return SingleChildScrollView(
-              child: ConstrainedBox(
-                constraints: BoxConstraints(minHeight: constraints.maxHeight),
-                child: Center(
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(
-                      maxWidth: AppSpacing.maxContentWidth,
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: AppSpacing.marginMobile,
-                        vertical: AppSpacing.gutter,
-                      ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            _current.displayText,
-                            key: const Key('practicePromptText'),
-                            style: practiceCharStyle(),
-                            textAlign: TextAlign.center,
-                          ),
-                          const SizedBox(height: AppSpacing.gutter * 2),
-                          TextField(
-                            controller: _controller,
-                            focusNode: _focusNode,
-                            enabled: !answered,
-                            autofocus: true,
-                            textAlign: TextAlign.center,
-                            style: textTheme.bodyLarge,
-                            decoration: const InputDecoration(
-                              hintText: 'Type the transliteration',
-                              border: OutlineInputBorder(),
-                            ),
-                            onSubmitted: (_) => _submit(),
-                          ),
-                          const SizedBox(height: AppSpacing.gutter),
-                          if (!answered)
-                            SizedBox(
-                              width: double.infinity,
-                              child: TactileButton(
-                                onPressed: _submit,
-                                child: const Text('Submit'),
-                              ),
-                            )
-                          else ...[
-                            _FeedbackBanner(
-                              correct: _feedback == _Feedback.correct,
-                              answer: _current.primary,
-                              meaning: _current.meaning,
-                            ),
-                            const SizedBox(height: AppSpacing.gutter),
-                            SizedBox(
-                              width: double.infinity,
-                              child: TactileButton(
-                                onPressed: _next,
-                                child: const Text('Next'),
-                              ),
-                            ),
-                          ],
-                        ],
-                      ),
-                    ),
+        child: ScrollableCenteredContent(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                _current.displayText,
+                key: const Key('practicePromptText'),
+                style: practiceCharStyle(),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: AppSpacing.gutter * 2),
+              TextField(
+                controller: _controller,
+                focusNode: _focusNode,
+                enabled: !answered,
+                autofocus: true,
+                textAlign: TextAlign.center,
+                style: textTheme.bodyLarge,
+                decoration: const InputDecoration(
+                  hintText: 'Type the transliteration',
+                  border: OutlineInputBorder(),
+                ),
+                onSubmitted: (_) => _submit(),
+              ),
+              const SizedBox(height: AppSpacing.gutter),
+              if (!answered)
+                SizedBox(
+                  width: double.infinity,
+                  child: TactileButton(
+                    onPressed: _submit,
+                    child: const Text('Submit'),
+                  ),
+                )
+              else ...[
+                _FeedbackBanner(
+                  correct: _feedback == _Feedback.correct,
+                  answer: _current.primary,
+                  meaning: _current.meaning,
+                ),
+                const SizedBox(height: AppSpacing.gutter),
+                SizedBox(
+                  width: double.infinity,
+                  child: TactileButton(
+                    onPressed: _next,
+                    child: const Text('Next'),
                   ),
                 ),
-              ),
-            );
-          },
+              ],
+            ],
+          ),
         ),
       ),
     );

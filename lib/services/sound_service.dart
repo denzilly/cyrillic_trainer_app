@@ -16,10 +16,15 @@ class SoundService {
   bool get enabled => _enabled;
 
   /// Loads the persisted preference. Call once at app startup before any
-  /// practice screen reads [enabled].
+  /// practice screen reads [enabled]. Falls back to sound-on if the
+  /// preference store can't be read, rather than blocking app startup.
   Future<void> load() async {
-    final prefs = await SharedPreferences.getInstance();
-    _enabled = prefs.getBool(_prefsKey) ?? true;
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      _enabled = prefs.getBool(_prefsKey) ?? true;
+    } catch (_) {
+      _enabled = true;
+    }
   }
 
   Future<void> setEnabled(bool value) async {

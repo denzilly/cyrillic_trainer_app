@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 /// Color tokens from the "Vibrant Scholastic" Stitch design system.
 abstract final class AppColors {
@@ -45,9 +44,6 @@ abstract final class AppSpacing {
 }
 
 ThemeData buildAppTheme() {
-  final headlineFont = GoogleFonts.quicksand;
-  final bodyFont = GoogleFonts.beVietnamPro;
-
   final colorScheme = ColorScheme.fromSeed(
     seedColor: AppColors.primary,
     brightness: Brightness.light,
@@ -71,37 +67,43 @@ ThemeData buildAppTheme() {
     colorScheme: colorScheme,
     scaffoldBackgroundColor: AppColors.surface,
     textTheme: TextTheme(
-      displayLarge: headlineFont(
+      displayLarge: const TextStyle(
+        fontFamily: 'Quicksand',
         fontSize: 40,
         fontWeight: FontWeight.w700,
         height: 48 / 40,
         color: AppColors.onSurface,
       ),
-      headlineLarge: headlineFont(
+      headlineLarge: const TextStyle(
+        fontFamily: 'Quicksand',
         fontSize: 32,
         fontWeight: FontWeight.w700,
         height: 40 / 32,
         color: AppColors.onSurface,
       ),
-      headlineMedium: headlineFont(
+      headlineMedium: const TextStyle(
+        fontFamily: 'Quicksand',
         fontSize: 28,
         fontWeight: FontWeight.w700,
         height: 34 / 28,
         color: AppColors.onSurface,
       ),
-      bodyLarge: bodyFont(
+      bodyLarge: const TextStyle(
+        fontFamily: 'BeVietnamPro',
         fontSize: 16,
         fontWeight: FontWeight.w400,
         height: 24 / 16,
         color: AppColors.onSurface,
       ),
-      bodyMedium: bodyFont(
+      bodyMedium: const TextStyle(
+        fontFamily: 'BeVietnamPro',
         fontSize: 16,
         fontWeight: FontWeight.w400,
         height: 24 / 16,
         color: AppColors.onSurfaceVariant,
       ),
-      labelLarge: bodyFont(
+      labelLarge: const TextStyle(
+        fontFamily: 'BeVietnamPro',
         fontSize: 14,
         fontWeight: FontWeight.w700,
         letterSpacing: 0.7,
@@ -113,7 +115,8 @@ ThemeData buildAppTheme() {
 
 /// The oversized display style used for the letter/word being practiced
 /// (the design system's "practice-char" role).
-TextStyle practiceCharStyle() => GoogleFonts.quicksand(
+TextStyle practiceCharStyle() => const TextStyle(
+      fontFamily: 'Quicksand',
       fontSize: 80,
       fontWeight: FontWeight.w700,
       height: 96 / 80,

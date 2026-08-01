@@ -44,10 +44,9 @@ class _WordPracticeScreenState extends State<WordPracticeScreen> {
 
   Future<void> _openCategoryPicker() async {
     final result = await showCategoryPicker(context, _selected);
-    if (result != null) {
-      setState(() => _selected = result);
-      _saveSelection();
-    }
+    if (!mounted || result == null) return;
+    setState(() => _selected = result);
+    _saveSelection();
   }
 
   @override
