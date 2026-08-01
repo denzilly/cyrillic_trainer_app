@@ -37,7 +37,11 @@ void main() {
       await tester.pumpWidget(const CyrillicTrainerApp());
 
       await tester.tap(find.text('High Scores'));
-      await tester.pumpAndSettle();
+      // Not pumpAndSettle: LeaderboardScreen shows an indeterminate
+      // CircularProgressIndicator while it loads, which animates forever
+      // and would make pumpAndSettle time out.
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
 
       expect(find.byType(LeaderboardScreen), findsOneWidget);
     });

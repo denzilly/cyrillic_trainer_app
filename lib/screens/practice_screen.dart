@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../data/models/practice_prompt.dart';
 import '../logic/streak_controller.dart';
 import '../logic/transliteration_checker.dart';
+import '../services/leaderboard_service.dart';
 import '../services/sound_service.dart';
 import '../theme/app_theme.dart';
 import '../widgets/scrollable_centered_content.dart';
@@ -80,6 +81,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
     });
     if (correct) {
       SoundService.instance.playCorrect();
+      LeaderboardService.instance.submitStreak(_streak.current);
     } else {
       SoundService.instance.playIncorrect();
     }
