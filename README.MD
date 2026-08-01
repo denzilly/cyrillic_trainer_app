@@ -6,13 +6,16 @@ through transliteration practice, with streaks to keep it fun.
 ## Features
 
 - **Single Letter Practice** — drills all 33 letters of the Russian alphabet.
+  A grid icon opens a quick-reference sheet of the full alphabet mid-practice.
 - **Word Practice** — drills a starter vocabulary list (Greetings, Numbers,
   Animals, Food, Colors), showing the English meaning after each answer.
   A "Word List" picker lets you restrict practice to specific categories.
 - **Streaks** — a running streak counter that resets on a wrong answer.
 - **Sound effects** — a toggle for correct/incorrect audio feedback.
-- High Scores / leaderboard screen exists but isn't wired up yet — see
-  [Status](#status).
+- **Help** — basic instructions plus a full alphabet reference grid (letter +
+  Latin transliteration).
+- **High Scores** — a Play Games Services leaderboard (top 10 + your own
+  rank). Code-complete but not yet live — see [Status](#status).
 
 ## Tech stack
 
@@ -49,10 +52,11 @@ flutter test integration_test/app_test.dart -d <device>   # golden-path, needs a
 lib/
   data/         Cyrillic alphabet + vocabulary data, and the models for both
   logic/        Pure Dart logic: transliteration checking, streak tracking
-  services/     SoundService (sfx + persisted on/off preference)
+  services/     SoundService (sfx) and LeaderboardService (Play Games Services)
   theme/        Design tokens and ThemeData (Vibrant Scholastic design system)
-  widgets/      Shared widgets (tactile button, streak badge, category picker, ...)
-  screens/      Landing, practice (shared by letters/words), leaderboard
+  widgets/      Shared widgets (tactile button, streak badge, category picker,
+                alphabet grid, ...)
+  screens/      Landing, practice (shared by letters/words), leaderboard, help
 test/
   unit/         Logic + data tests
   widget/       Widget tests (flutter_test)
@@ -65,9 +69,12 @@ integration_test/
 Actively developed, Android-first:
 
 - ✅ Core practice loop (letters + words), streaks, category picker, sound
-  toggle, theming — built, tested, and manually verified on an emulator.
-- ⏸️ **Leaderboard** (Play Games Services) is deferred — it needs a Google
-  Play Console developer account (one-time fee) to configure and test, which
-  hasn't been set up yet.
+  toggle, help/alphabet reference, theming — built, tested, and manually
+  verified on an emulator.
+- ⏳ **Leaderboard** (Play Games Services) is code-complete
+  (`lib/services/leaderboard_service.dart`, `lib/screens/leaderboard_screen.dart`)
+  but not yet live: it needs a real leaderboard ID from Play Console (currently
+  a `CHANGE_ME_LEADERBOARD_ID` placeholder), plus the app's SHA-1 registered
+  there and a tester added before sign-in will succeed on a debug build.
 - ⏸️ **iOS** is tabled for now — this is developed on Windows, and building/
   testing for iOS needs a Mac.
