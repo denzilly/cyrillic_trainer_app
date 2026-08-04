@@ -19,6 +19,7 @@ void main() {
 
     testWidgets('Single Letter Practice navigates to LetterPracticeScreen', (tester) async {
       await tester.pumpWidget(const CyrillicTrainerApp());
+      await tester.pumpAndSettle(); // let the landing intro animation finish
 
       await tester.tap(find.text('Single Letter Practice'));
       await tester.pumpAndSettle();
@@ -28,6 +29,7 @@ void main() {
 
     testWidgets('Word Practice navigates to WordPracticeScreen', (tester) async {
       await tester.pumpWidget(const CyrillicTrainerApp());
+      await tester.pumpAndSettle(); // let the landing intro animation finish
 
       await tester.tap(find.text('Word Practice'));
       await tester.pumpAndSettle();
@@ -37,6 +39,7 @@ void main() {
 
     testWidgets('High Scores navigates to LeaderboardScreen', (tester) async {
       await tester.pumpWidget(const CyrillicTrainerApp());
+      await tester.pumpAndSettle(); // let the landing intro animation finish
 
       await tester.tap(find.text('High Scores'));
       // Not pumpAndSettle: LeaderboardScreen shows an indeterminate
@@ -50,6 +53,7 @@ void main() {
 
     testWidgets('Help navigates to HelpScreen', (tester) async {
       await tester.pumpWidget(const CyrillicTrainerApp());
+      await tester.pumpAndSettle(); // let the landing intro animation finish
 
       await tester.tap(find.text('Help'));
       await tester.pumpAndSettle();
