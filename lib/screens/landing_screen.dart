@@ -15,15 +15,21 @@ class LandingScreen extends StatefulWidget {
   State<LandingScreen> createState() => _LandingScreenState();
 }
 
-/// Intro sequence: the title fades in large and centered, the rest of the
-/// content (subtitle + buttons) then grows in below it — pushing the title
-/// up towards its resting position, since the column stays vertically
-/// centered — and finally that content fades into view.
+/// Intro sequence: the title fades in large, sitting low as if centered on
+/// the screen; it then slides up to its resting spot above the buttons;
+/// finally the subtitle + buttons fade into view.
+///
+/// The slide is a paint-time [Transform], not a layout/size change, so the
+/// content's footprint inside the scroll view is constant from frame one —
+/// letting it grow would make [SingleChildScrollView] think its content is
+/// changing size under a fixed viewport and briefly report the position as
+/// out of range, which the Material scroll behavior "corrects" by firing an
+/// overscroll glow (the accent-orange flash at the edges).
 class _LandingScreenState extends State<LandingScreen>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
   late final Animation<double> _titleOpacity;
-  late final Animation<double> _contentSize;
+  late final Animation<double> _titleSlide;
   late final Animation<double> _contentOpacity;
   bool _introStarted = false;
 
@@ -38,7 +44,7 @@ class _LandingScreenState extends State<LandingScreen>
       parent: _controller,
       curve: const Interval(0.0, 0.35, curve: Curves.easeOut),
     );
-    _contentSize = CurvedAnimation(
+    _titleSlide = CurvedAnimation(
       parent: _controller,
       curve: const Interval(0.35, 0.65, curve: Curves.easeInOut),
     );
@@ -70,81 +76,93 @@ class _LandingScreenState extends State<LandingScreen>
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
 
+    // How far (in px) the title starts below its resting position, so it
+    // reads as centered on the screen before it slides up. Proportional to
+    // screen height so it looks right across device sizes.
+    final slideDistance = MediaQuery.of(context).size.height * 0.12;
+    final titleOffset = Tween<double>(
+      begin: slideDistance,
+      end: 0.0,
+    ).animate(_titleSlide);
+
     return Scaffold(
       body: SafeArea(
         child: ScrollableCenteredContent(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              FadeTransition(
-                opacity: _titleOpacity,
+              AnimatedBuilder(
+                animation: _controller,
+                builder: (context, child) => Opacity(
+                  opacity: _titleOpacity.value,
+                  child: Transform.translate(
+                    offset: Offset(0, titleOffset.value),
+                    child: child,
+                  ),
+                ),
                 child: Text(
                   'Cyrillic Trainer',
                   style: textTheme.displayLarge,
                   textAlign: TextAlign.center,
                 ),
               ),
-              SizeTransition(
-                sizeFactor: _contentSize,
-                alignment: Alignment.topLeft,
-                child: FadeTransition(
-                  opacity: _contentOpacity,
-                  child: Column(
-                    children: [
-                      const SizedBox(height: AppSpacing.base),
-                      Text(
-                        'Кириллический тренажёр',
-                        style: textTheme.bodyLarge,
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: AppSpacing.gutter * 3),
-                      SizedBox(
-                        width: double.infinity,
-                        child: TactileButton(
-                          onPressed: () => Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (_) => const LetterPracticeScreen(),
-                            ),
+              const SizedBox(height: AppSpacing.base),
+              FadeTransition(
+                opacity: _contentOpacity,
+                child: Column(
+                  children: [
+                    Text(
+                      'Кириллический тренажёр',
+                      style: textTheme.bodyLarge,
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: AppSpacing.gutter * 3),
+                    SizedBox(
+                      width: double.infinity,
+                      child: TactileButton(
+                        onPressed: () => Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => const LetterPracticeScreen(),
                           ),
-                          child: const Text('Single Letter Practice'),
                         ),
+                        child: const Text('Single Letter Practice'),
                       ),
-                      const SizedBox(height: AppSpacing.gutter),
-                      SizedBox(
-                        width: double.infinity,
-                        child: TactileButton(
-                          onPressed: () => Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (_) => const WordPracticeScreen(),
-                            ),
+                    ),
+                    const SizedBox(height: AppSpacing.gutter),
+                    SizedBox(
+                      width: double.infinity,
+                      child: TactileButton(
+                        onPressed: () => Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => const WordPracticeScreen(),
                           ),
-                          child: const Text('Word Practice'),
                         ),
+                        child: const Text('Word Practice'),
                       ),
-                      const SizedBox(height: AppSpacing.gutter),
-                      SizedBox(
-                        width: double.infinity,
-                        child: TactileButton(
-                          onPressed: () => Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (_) => const LeaderboardScreen(),
-                            ),
+                    ),
+                    const SizedBox(height: AppSpacing.gutter),
+                    SizedBox(
+                      width: double.infinity,
+                      child: TactileButton(
+                        onPressed: () => Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => const LeaderboardScreen(),
                           ),
-                          child: const Text('High Scores'),
                         ),
+                        child: const Text('High Scores'),
                       ),
-                      const SizedBox(height: AppSpacing.gutter),
-                      SizedBox(
-                        width: double.infinity,
-                        child: TactileButton(
-                          onPressed: () => Navigator.of(context).push(
-                            MaterialPageRoute(builder: (_) => const HelpScreen()),
-                          ),
-                          child: const Text('Help'),
+                    ),
+                    const SizedBox(height: AppSpacing.gutter),
+                    SizedBox(
+                      width: double.infinity,
+                      child: TactileButton(
+                        onPressed: () => Navigator.of(context).push(
+                          MaterialPageRoute(builder: (_) => const HelpScreen()),
                         ),
+                        child: const Text('Help'),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ],
