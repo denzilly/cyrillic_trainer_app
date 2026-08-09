@@ -79,6 +79,17 @@ flutter:
           weight: 400
         - asset: assets/fonts/BeVietnamPro-Bold.ttf
           weight: 700
+    # Neither Quicksand nor BeVietnamPro cover Cyrillic. Nunito does (and is
+    # a similarly rounded, friendly shape), so every TextStyle below lists it
+    # in fontFamilyFallback — Latin text keeps using the branded font, and
+    # Cyrillic text (the whole point of this app) transparently falls back
+    # to Nunito for the actual glyphs instead of rendering tofu boxes.
+    - family: Nunito
+      fonts:
+        - asset: assets/fonts/Nunito-VariableFont.ttf
+          weight: 400
+        - asset: assets/fonts/Nunito-VariableFont.ttf
+          weight: 700
 
   # To add assets to your application, add an assets section, like this:
   # assets:

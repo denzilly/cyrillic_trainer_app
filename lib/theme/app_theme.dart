@@ -43,32 +43,44 @@ abstract final class AppSpacing {
   static const maxContentWidth = 600.0;
 }
 
+/// Neither Quicksand nor BeVietnamPro cover Cyrillic; every TextStyle that
+/// names one of them as its fontFamily also lists this as a fallback so
+/// Cyrillic glyphs (the whole point of this app) render via Nunito instead
+/// of tofu boxes, while Latin text keeps using the branded font.
+const cyrillicFallbackFonts = ['Nunito'];
+
 ThemeData buildAppTheme() {
-  final colorScheme = ColorScheme.fromSeed(
-    seedColor: AppColors.primary,
-    brightness: Brightness.light,
-  ).copyWith(
-    primary: AppColors.primary,
-    onPrimary: AppColors.onPrimary,
-    primaryContainer: AppColors.primaryContainer,
-    secondary: AppColors.accent,
-    onSecondary: AppColors.onAccent,
-    error: AppColors.error,
-    errorContainer: AppColors.errorContainer,
-    onErrorContainer: AppColors.onErrorContainer,
-    surface: AppColors.surface,
-    onSurface: AppColors.onSurface,
-    onSurfaceVariant: AppColors.onSurfaceVariant,
-    outlineVariant: AppColors.outlineVariant,
-  );
+  final colorScheme =
+      ColorScheme.fromSeed(
+        seedColor: AppColors.primary,
+        brightness: Brightness.light,
+      ).copyWith(
+        primary: AppColors.primary,
+        onPrimary: AppColors.onPrimary,
+        primaryContainer: AppColors.primaryContainer,
+        secondary: AppColors.accent,
+        onSecondary: AppColors.onAccent,
+        error: AppColors.error,
+        errorContainer: AppColors.errorContainer,
+        onErrorContainer: AppColors.onErrorContainer,
+        surface: AppColors.surface,
+        onSurface: AppColors.onSurface,
+        onSurfaceVariant: AppColors.onSurfaceVariant,
+        outlineVariant: AppColors.outlineVariant,
+      );
 
   return ThemeData(
     useMaterial3: true,
     colorScheme: colorScheme,
-    scaffoldBackgroundColor: AppColors.surface,
+    // Transparent, not AppColors.surface: AmbientBackground paints the real
+    // surface color (plus its drifting letters) once behind every screen,
+    // above MaterialApp's Navigator, so each Scaffold has to let it show
+    // through rather than painting its own opaque background over it.
+    scaffoldBackgroundColor: Colors.transparent,
     textTheme: TextTheme(
       displayLarge: const TextStyle(
         fontFamily: 'Quicksand',
+        fontFamilyFallback: cyrillicFallbackFonts,
         fontSize: 40,
         fontWeight: FontWeight.w700,
         height: 48 / 40,
@@ -76,6 +88,7 @@ ThemeData buildAppTheme() {
       ),
       headlineLarge: const TextStyle(
         fontFamily: 'Quicksand',
+        fontFamilyFallback: cyrillicFallbackFonts,
         fontSize: 32,
         fontWeight: FontWeight.w700,
         height: 40 / 32,
@@ -83,6 +96,7 @@ ThemeData buildAppTheme() {
       ),
       headlineMedium: const TextStyle(
         fontFamily: 'Quicksand',
+        fontFamilyFallback: cyrillicFallbackFonts,
         fontSize: 28,
         fontWeight: FontWeight.w700,
         height: 34 / 28,
@@ -90,6 +104,7 @@ ThemeData buildAppTheme() {
       ),
       bodyLarge: const TextStyle(
         fontFamily: 'BeVietnamPro',
+        fontFamilyFallback: cyrillicFallbackFonts,
         fontSize: 16,
         fontWeight: FontWeight.w400,
         height: 24 / 16,
@@ -97,6 +112,7 @@ ThemeData buildAppTheme() {
       ),
       bodyMedium: const TextStyle(
         fontFamily: 'BeVietnamPro',
+        fontFamilyFallback: cyrillicFallbackFonts,
         fontSize: 16,
         fontWeight: FontWeight.w400,
         height: 24 / 16,
@@ -104,6 +120,7 @@ ThemeData buildAppTheme() {
       ),
       labelLarge: const TextStyle(
         fontFamily: 'BeVietnamPro',
+        fontFamilyFallback: cyrillicFallbackFonts,
         fontSize: 14,
         fontWeight: FontWeight.w700,
         letterSpacing: 0.7,
@@ -116,9 +133,10 @@ ThemeData buildAppTheme() {
 /// The oversized display style used for the letter/word being practiced
 /// (the design system's "practice-char" role).
 TextStyle practiceCharStyle() => const TextStyle(
-      fontFamily: 'Quicksand',
-      fontSize: 80,
-      fontWeight: FontWeight.w700,
-      height: 96 / 80,
-      color: AppColors.onSurface,
-    );
+  fontFamily: 'Quicksand',
+  fontFamilyFallback: cyrillicFallbackFonts,
+  fontSize: 80,
+  fontWeight: FontWeight.w700,
+  height: 96 / 80,
+  color: AppColors.onSurface,
+);
