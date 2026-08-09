@@ -44,28 +44,33 @@ abstract final class AppSpacing {
 }
 
 ThemeData buildAppTheme() {
-  final colorScheme = ColorScheme.fromSeed(
-    seedColor: AppColors.primary,
-    brightness: Brightness.light,
-  ).copyWith(
-    primary: AppColors.primary,
-    onPrimary: AppColors.onPrimary,
-    primaryContainer: AppColors.primaryContainer,
-    secondary: AppColors.accent,
-    onSecondary: AppColors.onAccent,
-    error: AppColors.error,
-    errorContainer: AppColors.errorContainer,
-    onErrorContainer: AppColors.onErrorContainer,
-    surface: AppColors.surface,
-    onSurface: AppColors.onSurface,
-    onSurfaceVariant: AppColors.onSurfaceVariant,
-    outlineVariant: AppColors.outlineVariant,
-  );
+  final colorScheme =
+      ColorScheme.fromSeed(
+        seedColor: AppColors.primary,
+        brightness: Brightness.light,
+      ).copyWith(
+        primary: AppColors.primary,
+        onPrimary: AppColors.onPrimary,
+        primaryContainer: AppColors.primaryContainer,
+        secondary: AppColors.accent,
+        onSecondary: AppColors.onAccent,
+        error: AppColors.error,
+        errorContainer: AppColors.errorContainer,
+        onErrorContainer: AppColors.onErrorContainer,
+        surface: AppColors.surface,
+        onSurface: AppColors.onSurface,
+        onSurfaceVariant: AppColors.onSurfaceVariant,
+        outlineVariant: AppColors.outlineVariant,
+      );
 
   return ThemeData(
     useMaterial3: true,
     colorScheme: colorScheme,
-    scaffoldBackgroundColor: AppColors.surface,
+    // Transparent, not AppColors.surface: AmbientBackground paints the real
+    // surface color (plus its drifting letters) once behind every screen,
+    // above MaterialApp's Navigator, so each Scaffold has to let it show
+    // through rather than painting its own opaque background over it.
+    scaffoldBackgroundColor: Colors.transparent,
     textTheme: TextTheme(
       displayLarge: const TextStyle(
         fontFamily: 'Quicksand',
@@ -116,9 +121,9 @@ ThemeData buildAppTheme() {
 /// The oversized display style used for the letter/word being practiced
 /// (the design system's "practice-char" role).
 TextStyle practiceCharStyle() => const TextStyle(
-      fontFamily: 'Quicksand',
-      fontSize: 80,
-      fontWeight: FontWeight.w700,
-      height: 96 / 80,
-      color: AppColors.onSurface,
-    );
+  fontFamily: 'Quicksand',
+  fontSize: 80,
+  fontWeight: FontWeight.w700,
+  height: 96 / 80,
+  color: AppColors.onSurface,
+);
