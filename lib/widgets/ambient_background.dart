@@ -199,6 +199,7 @@ class _DriftingLettersPainter extends CustomPainter {
           text: drifter.glyph,
           style: TextStyle(
             fontFamily: 'Quicksand',
+            fontFamilyFallback: cyrillicFallbackFonts,
             fontWeight: FontWeight.w700,
             fontSize: drifter.fontSize,
             color: color,

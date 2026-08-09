@@ -43,6 +43,12 @@ abstract final class AppSpacing {
   static const maxContentWidth = 600.0;
 }
 
+/// Neither Quicksand nor BeVietnamPro cover Cyrillic; every TextStyle that
+/// names one of them as its fontFamily also lists this as a fallback so
+/// Cyrillic glyphs (the whole point of this app) render via Nunito instead
+/// of tofu boxes, while Latin text keeps using the branded font.
+const cyrillicFallbackFonts = ['Nunito'];
+
 ThemeData buildAppTheme() {
   final colorScheme =
       ColorScheme.fromSeed(
@@ -74,6 +80,7 @@ ThemeData buildAppTheme() {
     textTheme: TextTheme(
       displayLarge: const TextStyle(
         fontFamily: 'Quicksand',
+        fontFamilyFallback: cyrillicFallbackFonts,
         fontSize: 40,
         fontWeight: FontWeight.w700,
         height: 48 / 40,
@@ -81,6 +88,7 @@ ThemeData buildAppTheme() {
       ),
       headlineLarge: const TextStyle(
         fontFamily: 'Quicksand',
+        fontFamilyFallback: cyrillicFallbackFonts,
         fontSize: 32,
         fontWeight: FontWeight.w700,
         height: 40 / 32,
@@ -88,6 +96,7 @@ ThemeData buildAppTheme() {
       ),
       headlineMedium: const TextStyle(
         fontFamily: 'Quicksand',
+        fontFamilyFallback: cyrillicFallbackFonts,
         fontSize: 28,
         fontWeight: FontWeight.w700,
         height: 34 / 28,
@@ -95,6 +104,7 @@ ThemeData buildAppTheme() {
       ),
       bodyLarge: const TextStyle(
         fontFamily: 'BeVietnamPro',
+        fontFamilyFallback: cyrillicFallbackFonts,
         fontSize: 16,
         fontWeight: FontWeight.w400,
         height: 24 / 16,
@@ -102,6 +112,7 @@ ThemeData buildAppTheme() {
       ),
       bodyMedium: const TextStyle(
         fontFamily: 'BeVietnamPro',
+        fontFamilyFallback: cyrillicFallbackFonts,
         fontSize: 16,
         fontWeight: FontWeight.w400,
         height: 24 / 16,
@@ -109,6 +120,7 @@ ThemeData buildAppTheme() {
       ),
       labelLarge: const TextStyle(
         fontFamily: 'BeVietnamPro',
+        fontFamilyFallback: cyrillicFallbackFonts,
         fontSize: 14,
         fontWeight: FontWeight.w700,
         letterSpacing: 0.7,
@@ -122,6 +134,7 @@ ThemeData buildAppTheme() {
 /// (the design system's "practice-char" role).
 TextStyle practiceCharStyle() => const TextStyle(
   fontFamily: 'Quicksand',
+  fontFamilyFallback: cyrillicFallbackFonts,
   fontSize: 80,
   fontWeight: FontWeight.w700,
   height: 96 / 80,
