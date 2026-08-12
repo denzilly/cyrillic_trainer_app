@@ -73,8 +73,17 @@ Actively developed, Android-first:
   verified on an emulator.
 - ⏳ **Leaderboard** (Play Games Services) is code-complete
   (`lib/services/leaderboard_service.dart`, `lib/screens/leaderboard_screen.dart`)
-  but not yet live: it needs a real leaderboard ID from Play Console (currently
-  a `CHANGE_ME_LEADERBOARD_ID` placeholder), plus the app's SHA-1 registered
-  there and a tester added before sign-in will succeed on a debug build.
+  but not yet live. Before sign-in will succeed on a debug build:
+  1. Link the app in Play Console > Play Games Services > Setup and
+     management, then set its numeric App ID as the
+     `com.google.android.gms.games.APP_ID` meta-data value in
+     `android/app/src/main/AndroidManifest.xml` (currently a
+     `CHANGE_ME_PLAY_GAMES_APP_ID` placeholder — without this, sign-in fails
+     silently and High Scores just shows "Couldn't sign in").
+  2. Create a leaderboard under Play Games Services > Leaderboards and put
+     its ID in `_androidLeaderboardId` in `leaderboard_service.dart`
+     (currently a `CHANGE_ME_LEADERBOARD_ID` placeholder).
+  3. Register the app's debug SHA-1 and add yourself as a tester in Play
+     Console.
 - ⏸️ **iOS** is tabled for now — this is developed on Windows, and building/
   testing for iOS needs a Mac.

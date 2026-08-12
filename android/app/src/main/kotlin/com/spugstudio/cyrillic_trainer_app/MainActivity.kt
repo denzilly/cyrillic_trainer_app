@@ -1,4 +1,4 @@
-package com.denzilly.cyrillic_trainer_app
+package com.spugstudio.cyrillic_trainer_app
 
 import io.flutter.embedding.android.FlutterActivity
 

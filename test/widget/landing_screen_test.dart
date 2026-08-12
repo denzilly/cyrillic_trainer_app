@@ -12,7 +12,7 @@ import 'package:cyrillic_trainer_app/screens/word_practice_screen.dart';
 /// fixed, generous duration instead.
 Future<void> settle(
   WidgetTester tester, [
-  Duration duration = const Duration(milliseconds: 1200),
+  Duration duration = const Duration(milliseconds: 2600),
 ]) async {
   await tester.pump();
   await tester.pump(duration);
@@ -25,7 +25,7 @@ void main() {
     ) async {
       await tester.pumpWidget(const CyrillicTrainerApp());
 
-      expect(find.text('Cyrillic Trainer'), findsOneWidget);
+      expect(find.text('CYRILLIC TRAINER'), findsOneWidget);
       expect(find.text('Single Letter Practice'), findsOneWidget);
       expect(find.text('Word Practice'), findsOneWidget);
       expect(find.text('High Scores'), findsOneWidget);

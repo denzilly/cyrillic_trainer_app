@@ -30,6 +30,20 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+        <!-- Required by games_services (Play Games Services v2) for sign-in
+             to work at all — without this the SDK can't associate the app
+             with its Play Console listing, and GameAuth.signIn() just fails
+             silently (LeaderboardService.ensureSignedIn() swallows it, so
+             the High Scores screen shows "Couldn't sign in" with no other
+             symptom). Get the numeric App ID from Play Console > Play Games
+             Services > Setup and management > Configuration, after linking
+             this app there. -->
+        <meta-data
+            android:name="com.google.android.gms.games.APP_ID"
+            android:value="162639843326" />
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and
