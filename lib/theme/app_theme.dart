@@ -18,9 +18,11 @@ abstract final class AppColors {
   static const errorContainer = Color(0xFFFFDAD6);
   static const onErrorContainer = Color(0xFF93000A);
 
-  static const surface = Color(0xFFF8F9FA);
+  // Soft lavender-pink, not neutral gray: gives AmbientBackground's
+  // drifting letters a tinted field to float in instead of a flat white.
+  static const surface = Color(0xFFF6EEFB);
   static const surfaceContainer = Color(0xFFEDEEEF);
-  static const surfaceContainerLow = Color(0xFFF3F4F5);
+  static const surfaceContainerLow = Color(0xFFFFFDFE);
   static const onSurface = Color(0xFF191C1D);
   static const onSurfaceVariant = Color(0xFF494454);
   static const outlineVariant = Color(0xFFCBC3D7);
@@ -78,12 +80,16 @@ ThemeData buildAppTheme() {
     // through rather than painting its own opaque background over it.
     scaffoldBackgroundColor: Colors.transparent,
     textTheme: TextTheme(
+      // Soviet-poster display face for the app title only (see
+      // landing_screen.dart) — wider letter spacing suits its blocky,
+      // stencil-cut letterforms, and it reads best set in caps.
       displayLarge: const TextStyle(
-        fontFamily: 'Quicksand',
+        fontFamily: 'Soviet',
         fontFamilyFallback: cyrillicFallbackFonts,
-        fontSize: 40,
-        fontWeight: FontWeight.w700,
-        height: 48 / 40,
+        fontSize: 52,
+        fontWeight: FontWeight.w400,
+        letterSpacing: 1.5,
+        height: 56 / 52,
         color: AppColors.onSurface,
       ),
       headlineLarge: const TextStyle(

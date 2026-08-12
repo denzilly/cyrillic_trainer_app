@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../theme/app_theme.dart';
 import '../widgets/alphabet_grid.dart';
+import '../widgets/round_back_button.dart';
 import '../widgets/scrollable_centered_content.dart';
 
 class HelpScreen extends StatelessWidget {
@@ -12,7 +13,7 @@ class HelpScreen extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Help')),
+      appBar: AppBar(leading: const RoundBackButton(), title: const Text('Help')),
       body: SafeArea(
         child: ScrollableCenteredContent(
           child: Column(

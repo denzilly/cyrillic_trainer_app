@@ -28,10 +28,10 @@ void main() {
       await tester.pumpWidget(const CyrillicTrainerApp());
       await settle(
         tester,
-        const Duration(milliseconds: 1200),
+        const Duration(milliseconds: 2600),
       ); // boot + landing intro
 
-      expect(find.text('Cyrillic Trainer'), findsOneWidget);
+      expect(find.text('CYRILLIC TRAINER'), findsOneWidget);
 
       // --- Single Letter Practice: wrong answer, then correct ---
       await tester.tap(find.text('Single Letter Practice'));
@@ -62,7 +62,7 @@ void main() {
       // Back to landing.
       await tester.tap(find.byIcon(Icons.arrow_back));
       await settle(tester);
-      expect(find.text('Cyrillic Trainer'), findsOneWidget);
+      expect(find.text('CYRILLIC TRAINER'), findsOneWidget);
 
       // --- Word Practice: correct answer shows the English meaning ---
       await tester.tap(find.text('Word Practice'));

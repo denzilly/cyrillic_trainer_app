@@ -90,6 +90,13 @@ flutter:
           weight: 400
         - asset: assets/fonts/Nunito-VariableFont.ttf
           weight: 700
+    # Soviet-poster-style display face, used for the "Cyrillic Trainer"
+    # title only. Latin-only (no Cyrillic glyphs), which is fine since the
+    # title itself is Latin text.
+    - family: Soviet
+      fonts:
+        - asset: assets/fonts/Soviet-Regular.ttf
+          weight: 400
 
   # To add assets to your application, add an assets section, like this:
   # assets:

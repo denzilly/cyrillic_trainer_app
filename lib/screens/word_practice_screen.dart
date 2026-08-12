@@ -60,6 +60,7 @@ class _WordPracticeScreenState extends State<WordPracticeScreen> {
       title: 'Word Practice',
       prompts: promptsFromWords(wordsInCategories(_selected)),
       onOpenWordList: _openCategoryPicker,
+      submitToLeaderboard: true,
     );
   }
 }

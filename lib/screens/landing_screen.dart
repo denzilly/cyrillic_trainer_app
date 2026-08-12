@@ -16,8 +16,9 @@ class LandingScreen extends StatefulWidget {
 }
 
 /// Intro sequence: the title fades in large, sitting low as if centered on
-/// the screen; it then slides up to its resting spot above the buttons;
-/// finally the subtitle + buttons fade into view.
+/// the screen; it slides up to its resting spot above the buttons; the
+/// subtitle fades in below it; only once that text has settled does the
+/// card frame fade in behind/around it; finally the buttons fade in.
 ///
 /// The slide is a paint-time [Transform], not a layout/size change, so the
 /// content's footprint inside the scroll view is constant from frame one —
@@ -30,27 +31,37 @@ class _LandingScreenState extends State<LandingScreen>
   late final AnimationController _controller;
   late final Animation<double> _titleOpacity;
   late final Animation<double> _titleSlide;
-  late final Animation<double> _contentOpacity;
+  late final Animation<double> _subtitleOpacity;
+  late final Animation<double> _cardOpacity;
+  late final Animation<double> _buttonsOpacity;
   bool _introStarted = false;
 
   @override
   void initState() {
     super.initState();
     _controller = AnimationController(
-      duration: const Duration(milliseconds: 1100),
+      duration: const Duration(milliseconds: 2500),
       vsync: this,
     );
     _titleOpacity = CurvedAnimation(
       parent: _controller,
-      curve: const Interval(0.0, 0.35, curve: Curves.easeOut),
+      curve: const Interval(0.0, 0.28, curve: Curves.easeOut),
     );
     _titleSlide = CurvedAnimation(
       parent: _controller,
-      curve: const Interval(0.35, 0.65, curve: Curves.easeInOut),
+      curve: const Interval(0.28, 0.5, curve: Curves.easeInOut),
     );
-    _contentOpacity = CurvedAnimation(
+    _subtitleOpacity = CurvedAnimation(
       parent: _controller,
-      curve: const Interval(0.65, 1.0, curve: Curves.easeIn),
+      curve: const Interval(0.5, 0.68, curve: Curves.easeIn),
+    );
+    _cardOpacity = CurvedAnimation(
+      parent: _controller,
+      curve: const Interval(0.68, 0.85, curve: Curves.easeOut),
+    );
+    _buttonsOpacity = CurvedAnimation(
+      parent: _controller,
+      curve: const Interval(0.85, 1.0, curve: Curves.easeIn),
     );
   }
 
@@ -91,32 +102,76 @@ class _LandingScreenState extends State<LandingScreen>
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              // The card frame's own fade-in (_cardOpacity) is separate from
+              // the title/subtitle animations passed in as `child`, so the
+              // text isn't re-faded by the card's opacity on top of its own
+              // — it only fades the background/border/shadow in behind text
+              // that has already finished landing.
               AnimatedBuilder(
-                animation: _controller,
-                builder: (context, child) => Opacity(
-                  opacity: _titleOpacity.value,
-                  child: Transform.translate(
-                    offset: Offset(0, titleOffset.value),
-                    child: child,
+                animation: _cardOpacity,
+                builder: (context, child) => Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(AppSpacing.gutter * 1.5),
+                  decoration: BoxDecoration(
+                    color: AppColors.surfaceContainerLow.withValues(
+                      alpha: _cardOpacity.value,
+                    ),
+                    borderRadius: BorderRadius.circular(AppRadius.xl),
+                    border: Border.all(
+                      color: AppColors.outlineVariant.withValues(
+                        alpha: _cardOpacity.value,
+                      ),
+                      width: 1,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.onSurface.withValues(
+                          alpha: 0.08 * _cardOpacity.value,
+                        ),
+                        blurRadius: 24,
+                        offset: const Offset(0, 8),
+                      ),
+                    ],
                   ),
+                  child: child,
                 ),
-                child: Text(
-                  'Cyrillic Trainer',
-                  style: textTheme.displayLarge,
-                  textAlign: TextAlign.center,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    AnimatedBuilder(
+                      animation: _controller,
+                      builder: (context, child) => Opacity(
+                        opacity: _titleOpacity.value,
+                        child: Transform.translate(
+                          offset: Offset(0, titleOffset.value),
+                          child: child,
+                        ),
+                      ),
+                      child: Text(
+                        'CYRILLIC TRAINER',
+                        style: textTheme.displayLarge,
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.base),
+                    FadeTransition(
+                      opacity: _subtitleOpacity,
+                      child: Text(
+                        '(Кириллический тренажёр)',
+                        style: textTheme.bodyLarge?.copyWith(
+                          fontStyle: FontStyle.italic,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              const SizedBox(height: AppSpacing.base),
+              const SizedBox(height: AppSpacing.gutter * 3),
               FadeTransition(
-                opacity: _contentOpacity,
+                opacity: _buttonsOpacity,
                 child: Column(
                   children: [
-                    Text(
-                      'Кириллический тренажёр',
-                      style: textTheme.bodyLarge,
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: AppSpacing.gutter * 3),
                     SizedBox(
                       width: double.infinity,
                       child: TactileButton(

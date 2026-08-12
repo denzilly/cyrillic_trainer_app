@@ -62,20 +62,32 @@ class _CategoryPickerSheetState extends State<_CategoryPickerSheet> {
                 ),
               ],
             ),
-            for (final category in vocabCategories)
-              CheckboxListTile(
-                title: Text(category),
-                value: _selected.contains(category),
-                onChanged: (checked) {
-                  setState(() {
-                    if (checked ?? false) {
-                      _selected.add(category);
-                    } else {
-                      _selected.remove(category);
-                    }
-                  });
-                },
+            // Flexible + scrollable: with a dozen-plus categories, the
+            // checkbox list can be taller than the sheet has room for —
+            // without this it'd just overflow instead of scrolling.
+            Flexible(
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    for (final category in vocabCategories)
+                      CheckboxListTile(
+                        title: Text(category),
+                        value: _selected.contains(category),
+                        onChanged: (checked) {
+                          setState(() {
+                            if (checked ?? false) {
+                              _selected.add(category);
+                            } else {
+                              _selected.remove(category);
+                            }
+                          });
+                        },
+                      ),
+                  ],
+                ),
               ),
+            ),
             const SizedBox(height: AppSpacing.gutter),
             TactileButton(
               onPressed: _selected.isEmpty ? null : () => Navigator.of(context).pop(_selected),

@@ -33,8 +33,8 @@ class SoundService {
     await prefs.setBool(_prefsKey, value);
   }
 
-  Future<void> playCorrect() => _play('sfx/correct.wav');
-  Future<void> playIncorrect() => _play('sfx/incorrect.wav');
+  Future<void> playCorrect() => _play('sfx/correct.mp3');
+  Future<void> playIncorrect() => _play('sfx/incorrect.mp3');
 
   Future<void> _play(String assetPath) async {
     if (!_enabled) return;

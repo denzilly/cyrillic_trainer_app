@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:games_services/games_services.dart';
 
 /// The bundle-of-scores shown on the High Scores screen: the global top 10,
@@ -26,8 +27,7 @@ class LeaderboardService {
   static final LeaderboardService instance = LeaderboardService._();
 
   /// Leaderboard ID from Play Console > Play Games Services > Leaderboards.
-  // TODO: replace with the real leaderboard ID once created in Play Console.
-  static const String _androidLeaderboardId = 'CHANGE_ME_LEADERBOARD_ID';
+  static const String _androidLeaderboardId = 'CgkI_p_c8N0EEAIQAQ';
 
   bool _signedIn = false;
   bool get signedIn => _signedIn;
@@ -37,7 +37,12 @@ class LeaderboardService {
     try {
       await GameAuth.signIn();
       _signedIn = await GameAuth.isSignedIn;
-    } catch (_) {
+    } catch (e) {
+      // Kept visible (not just swallowed) since a misconfigured Play
+      // Games Services setup — wrong App ID, unregistered SHA-1, tester
+      // not added — fails exactly like this: silently, with no other UI
+      // signal beyond "Couldn't sign in".
+      debugPrint('LeaderboardService.ensureSignedIn failed: $e');
       _signedIn = false;
     }
     return _signedIn;
@@ -53,8 +58,10 @@ class LeaderboardService {
       await Leaderboards.submitScore(
         score: Score(androidLeaderboardID: _androidLeaderboardId, value: streak),
       );
-    } catch (_) {
+      debugPrint('LeaderboardService.submitStreak($streak) submitted');
+    } catch (e) {
       // Non-fatal: submission failures shouldn't disrupt practice.
+      debugPrint('LeaderboardService.submitStreak($streak) failed: $e');
     }
   }
 
@@ -80,8 +87,13 @@ class LeaderboardService {
         // The player may not have a score yet; that's fine, just omit it.
         player = null;
       }
+      debugPrint(
+        'LeaderboardService.fetchLeaderboard loaded ${top?.length ?? 0} scores, '
+        'player=${player?.displayScore}',
+      );
       return LeaderboardData(top: top ?? const [], player: player);
-    } catch (_) {
+    } catch (e) {
+      debugPrint('LeaderboardService.fetchLeaderboard failed: $e');
       return null;
     }
   }
