@@ -54,6 +54,22 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
 
+  # Generates the Android launcher icon from assets/icon/icon.png. Run with
+  # `dart run flutter_launcher_icons` after changing the source image.
+  flutter_launcher_icons: ^0.14.3
+
+# Config for the flutter_launcher_icons dev dependency above.
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: false
+  image_path: "assets/icon/icon.png"
+  # Without an adaptive icon, modern launchers (which mask every icon into
+  # a circle/squircle regardless) pad the square source image out with a
+  # plain white background — a visible halo around it. Giving it a
+  # background layer matching the icon's own purple avoids that seam.
+  adaptive_icon_background: "#6F0F9F"
+  adaptive_icon_foreground: "assets/icon/icon.png"
+
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
