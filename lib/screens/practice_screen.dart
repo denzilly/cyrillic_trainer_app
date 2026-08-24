@@ -229,19 +229,31 @@ class _PracticeScreenState extends State<PracticeScreen> {
                   ),
                   child: Tooltip(
                     message: 'Alphabet guide',
-                    child: TactileButton(
-                      onPressed: widget.onOpenAlphabetGrid,
-                      borderRadius: AppRadius.md,
-                      // Tighter than a TactileButton's default so the whole
-                      // button (face plus lip) clears the app bar's toolbar
-                      // height instead of filling it edge to edge.
-                      padding: const EdgeInsets.symmetric(
-                        vertical: AppSpacing.base * 0.75,
-                        horizontal: AppSpacing.gutter * 0.875,
-                      ),
-                      child: const Text(
-                        'Guide',
-                        style: TextStyle(fontSize: 14, height: 1.2),
+                    // TactileButton's inner AnimatedContainer sets
+                    // `alignment: Alignment.center`, which per Container's
+                    // documented behavior makes it expand to fill any
+                    // bounded incoming constraints (here, the AppBar's
+                    // toolbar height) regardless of padding or child size.
+                    // IntrinsicHeight sizes this subtree to its natural
+                    // height instead, so the padding below actually
+                    // controls the button's height.
+                    child: IntrinsicHeight(
+                      child: TactileButton(
+                        onPressed: widget.onOpenAlphabetGrid,
+                        borderRadius: AppRadius.md,
+                        // Tighter than a TactileButton's default so the
+                        // whole button (face plus lip) clears the app bar's
+                        // toolbar height instead of filling it edge to edge.
+                        padding: const EdgeInsets.symmetric(
+                          // Tuned so the button's total height (face + lip)
+                          // renders at ~35px.
+                          vertical: 6.6,
+                          horizontal: AppSpacing.gutter * 0.875 * 1.2,
+                        ),
+                        child: const Text(
+                          'Guide',
+                          style: TextStyle(fontSize: 14, height: 1.2),
+                        ),
                       ),
                     ),
                   ),
