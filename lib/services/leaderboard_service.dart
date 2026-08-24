@@ -48,6 +48,23 @@ class LeaderboardService {
     return _signedIn;
   }
 
+  /// Runs [action], retrying once with a forced fresh sign-in if it fails.
+  /// The native Games client's connection can go stale independently of our
+  /// cached [_signedIn] flag — e.g. shortly after an OAuth client is
+  /// (re)registered, calls fail with "CLIENT_RECONNECT_REQUIRED" until the
+  /// client reconnects. Without this, [_signedIn] being true would keep
+  /// short-circuiting [ensureSignedIn] and every call would keep failing
+  /// the same way until the app was force-restarted.
+  Future<T> _withReconnect<T>(Future<T> Function() action) async {
+    try {
+      return await action();
+    } catch (e) {
+      _signedIn = false;
+      if (!await ensureSignedIn()) rethrow;
+      return await action();
+    }
+  }
+
   /// Submits [streak] as the player's score. Safe to call after every
   /// correct answer — Play Games Services only ever keeps a player's best
   /// submitted score, so lower submissions are simply ignored server-side.
@@ -55,8 +72,10 @@ class LeaderboardService {
     if (streak <= 0) return;
     try {
       if (!await ensureSignedIn()) return;
-      await Leaderboards.submitScore(
-        score: Score(androidLeaderboardID: _androidLeaderboardId, value: streak),
+      await _withReconnect(
+        () => Leaderboards.submitScore(
+          score: Score(androidLeaderboardID: _androidLeaderboardId, value: streak),
+        ),
       );
       debugPrint('LeaderboardService.submitStreak($streak) submitted');
     } catch (e) {
@@ -70,18 +89,22 @@ class LeaderboardService {
   Future<LeaderboardData?> fetchLeaderboard() async {
     try {
       if (!await ensureSignedIn()) return null;
-      final top = await Leaderboards.loadLeaderboardScores(
-        androidLeaderboardID: _androidLeaderboardId,
-        scope: PlayerScope.global,
-        timeScope: TimeScope.allTime,
-        maxResults: 10,
-      );
-      LeaderboardScoreData? player;
-      try {
-        player = await Leaderboards.getPlayerScoreObject(
+      final top = await _withReconnect(
+        () => Leaderboards.loadLeaderboardScores(
           androidLeaderboardID: _androidLeaderboardId,
           scope: PlayerScope.global,
           timeScope: TimeScope.allTime,
+          maxResults: 10,
+        ),
+      );
+      LeaderboardScoreData? player;
+      try {
+        player = await _withReconnect(
+          () => Leaderboards.getPlayerScoreObject(
+            androidLeaderboardID: _androidLeaderboardId,
+            scope: PlayerScope.global,
+            timeScope: TimeScope.allTime,
+          ),
         );
       } catch (_) {
         // The player may not have a score yet; that's fine, just omit it.
