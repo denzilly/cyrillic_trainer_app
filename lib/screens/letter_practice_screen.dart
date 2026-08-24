@@ -14,6 +14,8 @@ class LetterPracticeScreen extends StatelessWidget {
       title: 'Single Letter Practice',
       prompts: promptsFromLetters(cyrillicAlphabet),
       onOpenAlphabetGrid: () => showAlphabetGrid(context),
+      // No streaks in single-letter mode.
+      showStreak: false,
     );
   }
 }

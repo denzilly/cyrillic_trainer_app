@@ -46,6 +46,22 @@ void main() {
       expect(streak.sessionBest, 2);
     });
 
+    test('startingStreak resumes a carried-over streak', () {
+      final streak = StreakController(startingStreak: 5);
+      expect(streak.current, 5);
+      expect(streak.sessionBest, 5);
+
+      streak.recordCorrect();
+      expect(streak.current, 6);
+      expect(streak.sessionBest, 6);
+    });
+
+    test('a resumed streak still resets to zero on a wrong answer', () {
+      final streak = StreakController(startingStreak: 5)..recordIncorrect();
+      expect(streak.current, 0);
+      expect(streak.sessionBest, 5);
+    });
+
     test('reset clears both current and sessionBest', () {
       final streak = StreakController()
         ..recordCorrect()

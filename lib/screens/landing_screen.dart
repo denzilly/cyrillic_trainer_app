@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../theme/app_theme.dart';
+import '../widgets/ambient_background.dart';
 import '../widgets/scrollable_centered_content.dart';
 import '../widgets/tactile_button.dart';
 import 'help_screen.dart';
@@ -97,132 +98,141 @@ class _LandingScreenState extends State<LandingScreen>
     ).animate(_titleSlide);
 
     return Scaffold(
-      body: SafeArea(
-        child: ScrollableCenteredContent(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              // The card frame's own fade-in (_cardOpacity) is separate from
-              // the title/subtitle animations passed in as `child`, so the
-              // text isn't re-faded by the card's opacity on top of its own
-              // — it only fades the background/border/shadow in behind text
-              // that has already finished landing.
-              AnimatedBuilder(
-                animation: _cardOpacity,
-                builder: (context, child) => Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(AppSpacing.gutter * 1.5),
-                  decoration: BoxDecoration(
-                    color: AppColors.surfaceContainerLow.withValues(
-                      alpha: _cardOpacity.value,
-                    ),
-                    borderRadius: BorderRadius.circular(AppRadius.xl),
-                    border: Border.all(
-                      color: AppColors.outlineVariant.withValues(
-                        alpha: _cardOpacity.value,
-                      ),
-                      width: 1,
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.onSurface.withValues(
-                          alpha: 0.08 * _cardOpacity.value,
-                        ),
-                        blurRadius: 24,
-                        offset: const Offset(0, 8),
-                      ),
-                    ],
-                  ),
-                  child: child,
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    AnimatedBuilder(
-                      animation: _controller,
-                      builder: (context, child) => Opacity(
-                        opacity: _titleOpacity.value,
-                        child: Transform.translate(
-                          offset: Offset(0, titleOffset.value),
-                          child: child,
-                        ),
-                      ),
-                      child: Text(
-                        'CYRILLIC TRAINER',
-                        style: textTheme.displayLarge,
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                    const SizedBox(height: AppSpacing.base),
-                    FadeTransition(
-                      opacity: _subtitleOpacity,
-                      child: Text(
-                        '(Кириллический тренажёр)',
-                        style: textTheme.bodyLarge?.copyWith(
-                          fontStyle: FontStyle.italic,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: AppSpacing.gutter * 3),
-              FadeTransition(
-                opacity: _buttonsOpacity,
-                child: Column(
-                  children: [
-                    SizedBox(
-                      width: double.infinity,
-                      child: TactileButton(
-                        onPressed: () => Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (_) => const LetterPracticeScreen(),
-                          ),
-                        ),
-                        child: const Text('Single Letter Practice'),
-                      ),
-                    ),
-                    const SizedBox(height: AppSpacing.gutter),
-                    SizedBox(
-                      width: double.infinity,
-                      child: TactileButton(
-                        onPressed: () => Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (_) => const WordPracticeScreen(),
-                          ),
-                        ),
-                        child: const Text('Word Practice'),
-                      ),
-                    ),
-                    const SizedBox(height: AppSpacing.gutter),
-                    SizedBox(
-                      width: double.infinity,
-                      child: TactileButton(
-                        onPressed: () => Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (_) => const LeaderboardScreen(),
-                          ),
-                        ),
-                        child: const Text('High Scores'),
-                      ),
-                    ),
-                    const SizedBox(height: AppSpacing.gutter),
-                    SizedBox(
-                      width: double.infinity,
-                      child: TactileButton(
-                        onPressed: () => Navigator.of(context).push(
-                          MaterialPageRoute(builder: (_) => const HelpScreen()),
-                        ),
-                        child: const Text('Help'),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
+      // The landing screen inverts the app's usual palette: solid purple with
+      // its own lighter drifting letters, painted over (not through) the
+      // shared surface-colored AmbientBackground.
+      body: Stack(
+        children: [
+          const Positioned.fill(
+            child: DriftingLetterField(palette: AmbientPalette.purple),
           ),
-        ),
+          SafeArea(
+            child: ScrollableCenteredContent(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // The card frame's own fade-in (_cardOpacity) is separate
+                  // from the title/subtitle animations passed in as `child`,
+                  // so the text isn't re-faded by the card's opacity on top
+                  // of its own — it only fades the background/border/shadow
+                  // in behind text that has already finished landing.
+                  AnimatedBuilder(
+                    animation: _cardOpacity,
+                    builder: (context, child) => Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(AppSpacing.gutter * 1.5),
+                      decoration: BoxDecoration(
+                        color: AppColors.surfaceContainerLow.withValues(
+                          alpha: _cardOpacity.value,
+                        ),
+                        borderRadius: BorderRadius.circular(AppRadius.xl),
+                        border: Border.all(
+                          color: AppColors.outlineVariant.withValues(
+                            alpha: _cardOpacity.value,
+                          ),
+                          width: 1,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppColors.onSurface.withValues(
+                              alpha: 0.08 * _cardOpacity.value,
+                            ),
+                            blurRadius: 24,
+                            offset: const Offset(0, 8),
+                          ),
+                        ],
+                      ),
+                      child: child,
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        AnimatedBuilder(
+                          animation: _controller,
+                          builder: (context, child) => Opacity(
+                            opacity: _titleOpacity.value,
+                            child: Transform.translate(
+                              offset: Offset(0, titleOffset.value),
+                              child: child,
+                            ),
+                          ),
+                          child: Text(
+                            'CYRILLIC TRAINER',
+                            style: textTheme.displayLarge,
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                        const SizedBox(height: AppSpacing.base),
+                        FadeTransition(
+                          opacity: _subtitleOpacity,
+                          child: Text(
+                            '(Кириллический тренажёр)',
+                            style: textTheme.bodyLarge?.copyWith(
+                              fontStyle: FontStyle.italic,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.gutter * 3),
+                  FadeTransition(
+                    opacity: _buttonsOpacity,
+                    child: Column(
+                      children: [
+                        _MenuButton(
+                          label: 'Single Letter Practice',
+                          destination: (_) => const LetterPracticeScreen(),
+                        ),
+                        const SizedBox(height: AppSpacing.gutter),
+                        _MenuButton(
+                          label: 'Word Practice',
+                          destination: (_) => const WordPracticeScreen(),
+                        ),
+                        const SizedBox(height: AppSpacing.gutter),
+                        _MenuButton(
+                          label: 'High Scores',
+                          destination: (_) => const LeaderboardScreen(),
+                        ),
+                        const SizedBox(height: AppSpacing.gutter),
+                        _MenuButton(
+                          label: 'Help',
+                          destination: (_) => const HelpScreen(),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// One of the landing screen's navigation buttons: gold-on-purple — the
+/// inverse of the purple [TactileButton] used on every other screen, since
+/// here purple is the background rather than the accent.
+class _MenuButton extends StatelessWidget {
+  final String label;
+  final WidgetBuilder destination;
+
+  const _MenuButton({required this.label, required this.destination});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      child: TactileButton(
+        color: AppColors.accent,
+        foregroundColor: AppColors.onAccent,
+        onPressed: () => Navigator.of(
+          context,
+        ).push(MaterialPageRoute(builder: destination)),
+        child: Text(label),
       ),
     );
   }

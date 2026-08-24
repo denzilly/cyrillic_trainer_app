@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../data/models/practice_prompt.dart';
 import '../data/vocabulary.dart';
+import '../services/streak_store.dart';
 import '../widgets/category_picker_sheet.dart';
 import 'practice_screen.dart';
 
@@ -61,6 +62,10 @@ class _WordPracticeScreenState extends State<WordPracticeScreen> {
       prompts: promptsFromWords(wordsInCategories(_selected)),
       onOpenWordList: _openCategoryPicker,
       submitToLeaderboard: true,
+      // Survives leaving the screen, backgrounding, and app restarts — and
+      // the ValueKey above means changing the category selection resumes
+      // the same streak rather than starting a new one.
+      streakStorageKey: StreakStore.wordPracticeKey,
     );
   }
 }
