@@ -18,6 +18,7 @@ class CyrillicTrainerApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Cyrillic Trainer',
+      debugShowCheckedModeBanner: false,
       theme: buildAppTheme(),
       // Wraps every screen in one shared, continuously drifting background
       // instead of each screen owning its own animation.
