@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -8,6 +9,7 @@ import '../logic/transliteration_checker.dart';
 import '../services/hint_service.dart';
 import '../services/leaderboard_service.dart';
 import '../services/sound_service.dart';
+import '../services/streak_store.dart';
 import '../theme/app_theme.dart';
 import '../widgets/round_back_button.dart';
 import '../widgets/scrollable_centered_content.dart';
@@ -37,6 +39,15 @@ class PracticeScreen extends StatefulWidget {
   /// leaderboard presence.
   final bool submitToLeaderboard;
 
+  /// Whether to show the streak counter in the app bar. Off for Single
+  /// Letter Practice, which isn't a streak-based mode.
+  final bool showStreak;
+
+  /// When set, the streak is saved under this [StreakStore] key after every
+  /// answer and restored on the way back in, so leaving the screen (or the
+  /// app) doesn't cost the user their progress.
+  final String? streakStorageKey;
+
   const PracticeScreen({
     super.key,
     required this.title,
@@ -44,6 +55,8 @@ class PracticeScreen extends StatefulWidget {
     this.onOpenWordList,
     this.onOpenAlphabetGrid,
     this.submitToLeaderboard = false,
+    this.showStreak = true,
+    this.streakStorageKey,
   });
 
   @override
@@ -53,22 +66,27 @@ class PracticeScreen extends StatefulWidget {
 class _PracticeScreenState extends State<PracticeScreen> {
   final _controller = TextEditingController();
   final _focusNode = FocusNode();
-  final _streak = StreakController();
   final _random = Random();
 
-  // Anchors the first-time alphabet-grid hint bubble to the grid button.
+  // Replaced wholesale (not mutated) once a saved streak loads, so it stays
+  // the single source of truth for the counter.
+  StreakController _streak = StreakController();
+
+  // Anchors the first-time alphabet-grid hint bubble to the Guide button.
   final _alphabetGridButtonLink = LayerLink();
   OverlayEntry? _alphabetGridHintEntry;
 
   late final List<PracticePrompt> _queue;
   int _index = 0;
   _Feedback _feedback = _Feedback.none;
+  bool _answered = false;
   bool _soundEnabled = SoundService.instance.enabled;
 
   @override
   void initState() {
     super.initState();
     _queue = List.of(widget.prompts)..shuffle(_random);
+    _restoreStreak();
     if (widget.onOpenAlphabetGrid != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) => _maybeShowAlphabetGridHint());
     }
@@ -80,6 +98,24 @@ class _PracticeScreenState extends State<PracticeScreen> {
     _controller.dispose();
     _focusNode.dispose();
     super.dispose();
+  }
+
+  /// Picks the streak back up where the user left it. Skipped once they've
+  /// already answered something here: on the off chance the load lands after
+  /// the first answer, the live streak wins over the stale saved one.
+  Future<void> _restoreStreak() async {
+    final key = widget.streakStorageKey;
+    if (key == null) return;
+
+    final saved = await StreakStore.instance.load(key);
+    if (!mounted || saved == 0 || _answered) return;
+    setState(() => _streak = StreakController(startingStreak: saved));
+  }
+
+  void _persistStreak() {
+    final key = widget.streakStorageKey;
+    if (key == null) return;
+    unawaited(StreakStore.instance.save(key, _streak.current));
   }
 
   Future<void> _maybeShowAlphabetGridHint() async {
@@ -132,6 +168,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
       _controller.text,
       _current.accepted,
     );
+    _answered = true;
     setState(() {
       if (correct) {
         _streak.recordCorrect();
@@ -141,6 +178,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
         _feedback = _Feedback.incorrect;
       }
     });
+    _persistStreak();
     if (correct) {
       SoundService.instance.playCorrect();
       if (widget.submitToLeaderboard) {
@@ -184,17 +222,42 @@ class _PracticeScreenState extends State<PracticeScreen> {
           if (widget.onOpenAlphabetGrid != null)
             CompositedTransformTarget(
               link: _alphabetGridButtonLink,
-              child: IconButton(
-                icon: const Icon(Icons.grid_view),
-                tooltip: 'Alphabet grid',
-                onPressed: widget.onOpenAlphabetGrid,
+              child: Center(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.base / 2,
+                  ),
+                  child: Tooltip(
+                    message: 'Alphabet guide',
+                    child: TactileButton(
+                      onPressed: widget.onOpenAlphabetGrid,
+                      borderRadius: AppRadius.md,
+                      // Tighter than a TactileButton's default so the whole
+                      // button (face plus lip) clears the app bar's toolbar
+                      // height instead of filling it edge to edge.
+                      padding: const EdgeInsets.symmetric(
+                        vertical: AppSpacing.base * 0.75,
+                        horizontal: AppSpacing.gutter * 0.875,
+                      ),
+                      child: const Text(
+                        'Guide',
+                        style: TextStyle(fontSize: 14, height: 1.2),
+                      ),
+                    ),
+                  ),
+                ),
               ),
             ),
           SoundToggleButton(enabled: _soundEnabled, onChanged: _toggleSound),
-          Padding(
-            padding: const EdgeInsets.only(right: AppSpacing.gutter),
-            child: Center(child: StreakBadge(streak: _streak.current)),
-          ),
+          if (widget.showStreak)
+            Padding(
+              padding: const EdgeInsets.only(right: AppSpacing.gutter),
+              child: Center(child: StreakBadge(streak: _streak.current)),
+            )
+          else
+            // Keeps the sound toggle off the screen edge now that no streak
+            // badge follows it.
+            const SizedBox(width: AppSpacing.base),
         ],
       ),
       body: SafeArea(

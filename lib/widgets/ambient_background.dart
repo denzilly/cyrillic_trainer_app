@@ -4,26 +4,60 @@ import 'package:flutter/material.dart';
 
 import '../theme/app_theme.dart';
 
-/// Wraps the whole app shell in a very subtle, continuously drifting field
-/// of oversized, low-opacity Cyrillic letters — decoration only, meant to
-/// keep the plain [AppColors.surface] background from feeling static.
-///
-/// This sits above [MaterialApp]'s [Navigator] via `MaterialApp.builder`, so
-/// it's a single long-running animation shared by every screen instead of
-/// each screen starting its own. For it to actually show through, every
-/// screen's [Scaffold] relies on a transparent
-/// [ThemeData.scaffoldBackgroundColor] (set in [buildAppTheme]) — this
-/// widget paints the real surface color as its base layer instead.
-class AmbientBackground extends StatefulWidget {
-  final Widget child;
+/// The colors one drifting-letter field is painted with: the solid base it
+/// fills, plus the two tints its glyphs alternate between.
+class AmbientPalette {
+  final Color base;
+  final Color primaryTint;
+  final Color accentTint;
 
-  const AmbientBackground({super.key, required this.child});
+  /// How strongly the glyphs read against [base]. Tuned per palette: dark
+  /// tints on a light field need a fraction of the opacity that light tints
+  /// on a saturated field do.
+  final double glyphOpacity;
 
-  @override
-  State<AmbientBackground> createState() => _AmbientBackgroundState();
+  const AmbientPalette({
+    required this.base,
+    required this.primaryTint,
+    required this.accentTint,
+    required this.glyphOpacity,
+  });
+
+  /// The app-wide default: brand-colored glyphs, only just perceptible, on
+  /// the light lavender surface.
+  static const surface = AmbientPalette(
+    base: AppColors.surface,
+    primaryTint: AppColors.primary,
+    accentTint: AppColors.accent,
+    glyphOpacity: 0.07,
+  );
+
+  /// Inverted, for the landing screen: lighter purple/pink glyphs on a solid
+  /// purple field.
+  static const purple = AmbientPalette(
+    base: AppColors.primary,
+    primaryTint: AppColors.ambientLetterLavender,
+    accentTint: AppColors.ambientLetterPink,
+    glyphOpacity: 0.32,
+  );
 }
 
-class _AmbientBackgroundState extends State<AmbientBackground>
+/// A solid field of [AmbientPalette.base] with a subtle, continuously
+/// drifting layer of oversized Cyrillic letters over it — decoration only,
+/// meant to keep a flat background from feeling static.
+///
+/// Purely decorative: hidden from screen readers, and it never intercepts
+/// touches meant for the real content above it.
+class DriftingLetterField extends StatefulWidget {
+  final AmbientPalette palette;
+
+  const DriftingLetterField({super.key, required this.palette});
+
+  @override
+  State<DriftingLetterField> createState() => _DriftingLetterFieldState();
+}
+
+class _DriftingLetterFieldState extends State<DriftingLetterField>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
   bool _started = false;
@@ -57,27 +91,44 @@ class _AmbientBackgroundState extends State<AmbientBackground>
 
   @override
   Widget build(BuildContext context) {
-    return ColoredBox(
-      color: AppColors.surface,
-      child: Stack(
-        children: [
-          // Decorative and non-interactive: hidden from screen readers and
-          // never intercepts touches meant for the real content above it.
-          Positioned.fill(
-            child: ExcludeSemantics(
-              child: IgnorePointer(
-                child: AnimatedBuilder(
-                  animation: _controller,
-                  builder: (context, _) => CustomPaint(
-                    painter: _DriftingLettersPainter(_controller.value),
-                  ),
-                ),
-              ),
-            ),
+    return ExcludeSemantics(
+      child: IgnorePointer(
+        child: AnimatedBuilder(
+          animation: _controller,
+          builder: (context, _) => CustomPaint(
+            painter: _DriftingLettersPainter(_controller.value, widget.palette),
           ),
-          widget.child,
-        ],
+        ),
       ),
+    );
+  }
+}
+
+/// Wraps the whole app shell in one [DriftingLetterField] painted with
+/// [AmbientPalette.surface].
+///
+/// This sits above [MaterialApp]'s [Navigator] via `MaterialApp.builder`, so
+/// it's a single long-running animation shared by every screen instead of
+/// each screen starting its own. For it to actually show through, every
+/// screen's [Scaffold] relies on a transparent
+/// [ThemeData.scaffoldBackgroundColor] (set in [buildAppTheme]) — this
+/// widget paints the real surface color as its base layer instead. A screen
+/// wanting a different palette (the landing screen) paints its own opaque
+/// [DriftingLetterField] over this one.
+class AmbientBackground extends StatelessWidget {
+  final Widget child;
+
+  const AmbientBackground({super.key, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        const Positioned.fill(
+          child: DriftingLetterField(palette: AmbientPalette.surface),
+        ),
+        child,
+      ],
     );
   }
 }
@@ -178,11 +229,14 @@ const _drifters = [
 
 class _DriftingLettersPainter extends CustomPainter {
   final double t;
+  final AmbientPalette palette;
 
-  _DriftingLettersPainter(this.t);
+  _DriftingLettersPainter(this.t, this.palette);
 
   @override
   void paint(Canvas canvas, Size size) {
+    canvas.drawRect(Offset.zero & size, Paint()..color = palette.base);
+
     for (final drifter in _drifters) {
       final angle = 2 * math.pi * (t * drifter.driftSpeed + drifter.phase);
       final dx = math.cos(angle) * drifter.driftRadius;
@@ -191,8 +245,10 @@ class _DriftingLettersPainter extends CustomPainter {
 
       final center = drifter.anchor.alongSize(size) + Offset(dx, dy);
       final color =
-          (drifter.tint == _Tint.primary ? AppColors.primary : AppColors.accent)
-              .withValues(alpha: 0.07);
+          (drifter.tint == _Tint.primary
+                  ? palette.primaryTint
+                  : palette.accentTint)
+              .withValues(alpha: palette.glyphOpacity);
 
       final textPainter = TextPainter(
         text: TextSpan(
@@ -219,5 +275,5 @@ class _DriftingLettersPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant _DriftingLettersPainter oldDelegate) =>
-      oldDelegate.t != t;
+      oldDelegate.t != t || oldDelegate.palette != palette;
 }

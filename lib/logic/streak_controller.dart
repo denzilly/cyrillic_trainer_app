@@ -1,8 +1,16 @@
 /// Tracks the current answer streak within a practice session, plus the
 /// best streak reached this session (the value submitted to the leaderboard).
 class StreakController {
-  int _current = 0;
-  int _sessionBest = 0;
+  int _current;
+  int _sessionBest;
+
+  /// [startingStreak] resumes a streak carried over from an earlier visit
+  /// to the same practice mode (see [StreakStore]); it seeds the session
+  /// best too, so a resumed streak that's immediately broken still counts
+  /// as having been reached. Defaults to a fresh start at zero.
+  StreakController({int startingStreak = 0})
+    : _current = startingStreak,
+      _sessionBest = startingStreak;
 
   int get current => _current;
   int get sessionBest => _sessionBest;

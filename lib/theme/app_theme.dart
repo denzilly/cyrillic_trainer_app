@@ -26,6 +26,13 @@ abstract final class AppColors {
   static const onSurface = Color(0xFF191C1D);
   static const onSurfaceVariant = Color(0xFF494454);
   static const outlineVariant = Color(0xFFCBC3D7);
+
+  // Tints for AmbientBackground's drifting letters when they're painted over
+  // a solid [primary] field (the landing screen) instead of [surface]: both
+  // are lighter than the purple they sit on, so they read as texture rather
+  // than as content.
+  static const ambientLetterLavender = Color(0xFFC9A9FF);
+  static const ambientLetterPink = Color(0xFFFFA8E8);
 }
 
 /// Corner radii, matching the design system's "Rounded" shape language.

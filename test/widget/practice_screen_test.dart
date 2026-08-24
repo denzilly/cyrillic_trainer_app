@@ -7,6 +7,7 @@ import 'package:cyrillic_trainer_app/screens/practice_screen.dart';
 Widget wrap(Widget child) => MaterialApp(home: child);
 
 const _hintMessage = 'Tap here anytime to see the full alphabet reference.';
+const _streakKey = 'word_practice_streak';
 
 const _singlePrompt = [
   PracticePrompt(displayText: 'привет', accepted: ['privet'], meaning: 'hi (informal)'),
@@ -70,6 +71,92 @@ void main() {
 
       final field = tester.widget<TextField>(find.byType(TextField));
       expect(field.controller!.text, isEmpty);
+    });
+  });
+
+  group('PracticeScreen streak persistence', () {
+    testWidgets('saves the streak after every answer', (tester) async {
+      SharedPreferences.setMockInitialValues({});
+
+      await tester.pumpWidget(
+        wrap(
+          const PracticeScreen(
+            title: 'Word Practice',
+            prompts: _singlePrompt,
+            streakStorageKey: _streakKey,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.enterText(find.byType(TextField), 'privet');
+      await tester.tap(find.text('Submit'));
+      await tester.pumpAndSettle();
+
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getInt(_streakKey), 1);
+    });
+
+    testWidgets('resumes a saved streak on the way back in', (tester) async {
+      SharedPreferences.setMockInitialValues({_streakKey: 7});
+
+      await tester.pumpWidget(
+        wrap(
+          const PracticeScreen(
+            title: 'Word Practice',
+            prompts: _singlePrompt,
+            streakStorageKey: _streakKey,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('7'), findsOneWidget);
+
+      // And it keeps counting up from there, rather than from zero.
+      await tester.enterText(find.byType(TextField), 'privet');
+      await tester.tap(find.text('Submit'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('8'), findsOneWidget);
+    });
+
+    testWidgets('persists the reset to zero when the streak is broken', (tester) async {
+      SharedPreferences.setMockInitialValues({_streakKey: 7});
+
+      await tester.pumpWidget(
+        wrap(
+          const PracticeScreen(
+            title: 'Word Practice',
+            prompts: _singlePrompt,
+            streakStorageKey: _streakKey,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.enterText(find.byType(TextField), 'wrong');
+      await tester.tap(find.text('Submit'));
+      await tester.pumpAndSettle();
+
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getInt(_streakKey), 0);
+    });
+
+    testWidgets('a screen with no storage key saves nothing', (tester) async {
+      SharedPreferences.setMockInitialValues({});
+
+      await tester.pumpWidget(
+        wrap(const PracticeScreen(title: 'Word Practice', prompts: _singlePrompt)),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.enterText(find.byType(TextField), 'privet');
+      await tester.tap(find.text('Submit'));
+      await tester.pumpAndSettle();
+
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getInt(_streakKey), isNull);
     });
   });
 

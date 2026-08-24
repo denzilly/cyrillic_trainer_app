@@ -6,11 +6,14 @@ through transliteration practice, with streaks to keep it fun.
 ## Features
 
 - **Single Letter Practice** — drills all 33 letters of the Russian alphabet.
-  A grid icon opens a quick-reference sheet of the full alphabet mid-practice.
+  A "Guide" button opens a quick-reference sheet of the full alphabet
+  mid-practice.
 - **Word Practice** — drills a starter vocabulary list (Greetings, Numbers,
   Animals, Food, Colors), showing the English meaning after each answer.
   A "Word List" picker lets you restrict practice to specific categories.
-- **Streaks** — a running streak counter that resets on a wrong answer.
+- **Streaks** — a running streak counter that resets on a wrong answer. The
+  Word Practice streak is saved after every answer, so leaving the screen,
+  switching apps, or restarting picks up where you left off.
 - **Sound effects** — a toggle for correct/incorrect audio feedback.
 - **Help** — basic instructions plus a full alphabet reference grid (letter +
   Latin transliteration).
