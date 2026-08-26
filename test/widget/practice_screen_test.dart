@@ -72,6 +72,49 @@ void main() {
       final field = tester.widget<TextField>(find.byType(TextField));
       expect(field.controller!.text, isEmpty);
     });
+
+    testWidgets('the keyboard opens on the first prompt', (tester) async {
+      await tester.pumpWidget(wrap(const PracticeScreen(title: 'Word Practice', prompts: _singlePrompt)));
+      await tester.pumpAndSettle();
+
+      expect(tester.testTextInput.isVisible, isTrue);
+    });
+
+    testWidgets('Next refocuses the input so the keyboard comes back up', (tester) async {
+      await tester.pumpWidget(wrap(const PracticeScreen(title: 'Word Practice', prompts: _singlePrompt)));
+      await tester.pumpAndSettle();
+
+      await tester.enterText(find.byType(TextField), 'privet');
+      await tester.tap(find.text('Submit'));
+      await tester.pumpAndSettle();
+
+      // Feedback disables the field, which drops focus and the keyboard.
+      expect(tester.testTextInput.isVisible, isFalse);
+
+      await tester.tap(find.text('Next'));
+      await tester.pumpAndSettle();
+
+      final field = tester.widget<TextField>(find.byType(TextField));
+      expect(field.focusNode!.hasFocus, isTrue);
+      expect(tester.testTextInput.isVisible, isTrue);
+    });
+
+    testWidgets('Next reopens a keyboard the user dismissed while focus stayed put', (tester) async {
+      await tester.pumpWidget(wrap(const PracticeScreen(title: 'Word Practice', prompts: _singlePrompt)));
+      await tester.pumpAndSettle();
+
+      await tester.enterText(find.byType(TextField), 'privet');
+      // Stands in for the user swiping the keyboard away without tapping
+      // elsewhere: the field keeps focus, so refocusing alone changes nothing.
+      tester.testTextInput.hide();
+
+      await tester.tap(find.text('Submit'));
+      await tester.pump();
+      await tester.tap(find.text('Next'));
+      await tester.pumpAndSettle();
+
+      expect(tester.testTextInput.isVisible, isTrue);
+    });
   });
 
   group('PracticeScreen streak persistence', () {
