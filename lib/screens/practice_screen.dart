@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../data/models/practice_prompt.dart';
 import '../logic/streak_controller.dart';
@@ -201,7 +202,29 @@ class _PracticeScreenState extends State<PracticeScreen> {
       _controller.clear();
       _feedback = _Feedback.none;
     });
-    _focusNode.requestFocus();
+    _focusInput();
+  }
+
+  /// Puts the cursor back in the answer field and brings the soft keyboard
+  /// up with it, so a fresh prompt is typeable without tapping the field.
+  ///
+  /// Deferred to after the frame: showing feedback disables the field, which
+  /// leaves [_focusNode] with `canRequestFocus` false, and the setState that
+  /// re-enables it hasn't rebuilt the field yet when [_next] runs — a focus
+  /// request made there is silently dropped, which is what left users
+  /// reopening the keyboard by hand for every new word.
+  void _focusInput() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      if (_focusNode.hasFocus) {
+        // The field never lost focus (the user swiped the keyboard away
+        // rather than tapping elsewhere), so requesting it again would be a
+        // no-op. Ask the platform for the keyboard directly instead.
+        SystemChannels.textInput.invokeMethod<void>('TextInput.show');
+      } else {
+        _focusNode.requestFocus();
+      }
+    });
   }
 
   @override
