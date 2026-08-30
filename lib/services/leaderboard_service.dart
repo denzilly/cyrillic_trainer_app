@@ -94,6 +94,12 @@ class LeaderboardService {
           androidLeaderboardID: _androidLeaderboardId,
           scope: PlayerScope.global,
           timeScope: TimeScope.allTime,
+          // Without this the Play Games client is free to answer from its
+          // own local cache, which it does — so scores other players set
+          // after the last fetch stay invisible in the app while showing up
+          // fine in Play Console. Opening High Scores is exactly the
+          // user-initiated refresh the Games API says to force a reload for.
+          forceRefresh: true,
           maxResults: 10,
         ),
       );
@@ -110,8 +116,13 @@ class LeaderboardService {
         // The player may not have a score yet; that's fine, just omit it.
         player = null;
       }
+      // Logs every entry, not just the count: when the app shows fewer
+      // players than Play Console does, this is what separates "the server
+      // only returned us one score" (a Play Games visibility/tester setup
+      // question) from a rendering problem on our side.
       debugPrint(
-        'LeaderboardService.fetchLeaderboard loaded ${top?.length ?? 0} scores, '
+        'LeaderboardService.fetchLeaderboard loaded ${top?.length ?? 0} scores '
+        '[${top?.map((s) => '#${s.rank} ${s.scoreHolder.displayName}=${s.displayScore}').join(', ') ?? ''}], '
         'player=${player?.displayScore}',
       );
       return LeaderboardData(top: top ?? const [], player: player);
